@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   var _taskController;
   late List<Task> _tasks;
+  late List<bool> _taskDone;
 
   void saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -42,8 +43,21 @@ class _HomeScreenState extends State<HomeScreen> {
     for (dynamic d in list) {
       _tasks.add(Task.fromMap(json.decode(d)));
     }
+    _taskDone = List.generate(_tasks.length, (index) => false);
+    // print(_tasks);
+    setState(() {});
+  }
 
-    print(_tasks);
+  void updatePrintingTaskList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<Task> pendingList = [];
+    for (var i = 0; i < _tasks.length; i++) {
+      if (!_taskDone[i]) pendingList.add(_tasks[i]);
+    }
+    var pendingListEncoded = List.generate(
+        pendingList.length, (i) => json.encode(pendingList[i].getMap()));
+    prefs.setString('task', json.encode(pendingListEncoded));
+    _getTask();
   }
 
   @override
@@ -69,6 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            onPressed: updatePrintingTaskList,
+            icon: Icon(
+              Icons.save,
+              color: Colors.yellow,
+            ),
+          )
+        ],
         centerTitle: true,
         backgroundColor: Colors.purple[900],
       ),
@@ -99,9 +122,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: GoogleFonts.montserrat(),
                             ),
                             Checkbox(
-                              value: false,
+                              value: _taskDone[_tasks.indexOf(e)],
                               key: GlobalKey(),
-                              onChanged: (val) {},
+                              onChanged: (val) {
+                                setState(() {
+                                  _taskDone[_tasks.indexOf(e)] = val!;
+                                });
+                              },
                             ),
                           ],
                         ),
