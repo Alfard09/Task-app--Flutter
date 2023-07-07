@@ -17,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   var _taskController;
+  late List<Task> _tasks;
 
   void saveData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -31,9 +32,24 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.of(context).pop();
   }
 
+  void _getTask() async {
+    _tasks = [];
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Task t = Task.fromString(_taskController.text);
+    String? tasks = prefs.getString('task');
+    List list = (tasks == null) ? [] : json.decode(tasks);
+
+    for (dynamic d in list) {
+      _tasks.add(Task.fromMap(json.decode(d)));
+    }
+
+    print(_tasks);
+  }
+
   @override
   void initState() {
     _taskController = TextEditingController();
+    _getTask();
   }
 
   @override
@@ -56,9 +72,42 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         backgroundColor: Colors.purple[900],
       ),
-      body: Center(
-        child: Text("No task added yet"),
-      ),
+      body: (_tasks == null)
+          ? Center(
+              child: Text("No task added yet"),
+            )
+          : Column(
+              children: _tasks
+                  .map((e) => Container(
+                        height: 70,
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
+                        padding: const EdgeInsets.only(left: 10),
+                        alignment: Alignment.centerLeft,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.black, width: 0.5),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              e.task,
+                              style: GoogleFonts.montserrat(),
+                            ),
+                            Checkbox(
+                              value: false,
+                              key: GlobalKey(),
+                              onChanged: (val) {},
+                            ),
+                          ],
+                        ),
+                      ))
+                  .toList(),
+            ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(
           Icons.add,
