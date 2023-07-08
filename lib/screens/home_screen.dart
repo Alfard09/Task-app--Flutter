@@ -90,6 +90,20 @@ class _HomeScreenState extends State<HomeScreen> {
               Icons.save,
               color: Colors.yellow,
             ),
+          ),
+          IconButton(
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString(
+                'task',
+                json.encode([]),
+              );
+              _getTask();
+            },
+            icon: Icon(
+              Icons.delete,
+              color: Colors.yellow,
+            ),
           )
         ],
         centerTitle: true,
