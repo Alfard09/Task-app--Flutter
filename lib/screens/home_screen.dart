@@ -31,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     prefs.setString('task', json.encode(list));
     _taskController.text = '';
     Navigator.of(context).pop();
+    _getTask();
   }
 
   void _getTask() async {
@@ -57,6 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
     var pendingListEncoded = List.generate(
         pendingList.length, (i) => json.encode(pendingList[i].getMap()));
     prefs.setString('task', json.encode(pendingListEncoded));
+    setState(() {});
     _getTask();
   }
 
